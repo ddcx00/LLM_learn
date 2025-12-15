@@ -321,7 +321,7 @@ T5的大一统思想通过将所有NLP任务统一为文本到文本的形式，
 
 事实上，Decoder-Only 就是目前大火的 LLM 的基础架构，目前所有的 LLM 基本都是 Decoder-Only 模型（RWKV、Mamba 等非 Transformer 架构除外）。而引发 LLM 热潮的 ChatGPT，正是 Decoder-Only 系列的代表模型 GPT 系列模型的大成之作。而目前作为开源 LLM 基本架构的 LLaMA 模型，也正是在 GPT 的模型架构基础上优化发展而来。因此，在本节中，我们不但会详细分析 Decoder-Only 代表模型 GPT 的原理、架构和特点，还会深入到目前的主流开源 LLM，分析它们的结构、特点，结合之前对 Transformer 系列其他模型的分析，帮助大家深入理解当下被寄予厚望、被认为是 AGI 必经之路的 LLM 是如何一步步从传统 PLM 中发展而来的。
 
-首先，让我们学习打开 LLM 世界大门的代表模型——由 OpenAI 发布的 GPT。
+首先，让我们学习打开 LLM 世界大门的代表模型——由 OpenAI 发布的 GPT。1
 
 ### 3.3.1 GPT
 
