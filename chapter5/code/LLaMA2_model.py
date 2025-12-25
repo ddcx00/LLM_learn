@@ -50,18 +50,16 @@ class Attention(nn.Module):
 class LLaMA2Block(nn.Module):
     def __init__(self, config):
         super().__init__()
+        self.attn_norm = RMSNorm(config.hidden_size)
         self.attention = Attention(config.hidden_size, config.num_attention_heads)
-        self.ffn = nn.Sequential(
-            nn.Linear(config.hidden_size, config.intermediate_size),
-            nn.GELU(),
-            nn.Linear(config.intermediate_size, config.hidden_size)
-        )
-        self.norm1 = nn.LayerNorm(config.hidden_size)
-        self.norm2 = nn.LayerNorm(config.hidden_size)
+        self.ffn = MLP(config.hidden_size, config.ffn_hidden_size)
+        self.ffn_norm = RMSNorm(config.hidden_size)
 
     def forward(self, x, attention_mask=None):
-        attn_output, _ = self.attention(x, x, x, attn_mask=attention_mask)
-        x = self.norm1(x + attn_output)
+        x_norm = self.attn_norm(x)
+        attn_output, _ = self.attention(x_norm, attn_mask=attention_mask)
+        h = x + attn_output
+        x = self.norm1(h)
         ffn_output = self.ffn(x)
         x = self.norm2(x + ffn_output)
         return x
@@ -71,15 +69,15 @@ class LLaMA2(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.embedding = nn.Embedding(config.vocab_size, config.hidden_size)
+        self.tok_embedding = nn.Embedding(config.vocab_size, config.hidden_size)
         self.layers = nn.ModuleList([
             LLaMA2Block(config) for _ in range(config.num_layers)
         ])
-        self.norm = nn.LayerNorm(config.hidden_size)
+        self.norm = RMSNorm(config.hidden_size)
         self.output = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
     def forward(self, input_ids, attention_mask=None):
-        x = self.embedding(input_ids)
+        x = self.tok_embedding(input_ids)
         for layer in self.layers:
             x = layer(x, attention_mask)
         x = self.norm(x)
